@@ -25,6 +25,9 @@ const CSVUpload = () => {
                 Papa.parse<ParsedCsvTransaction>(file, {
                     header: true,
                     skipEmptyLines: true,
+                    transformHeader: function(header) {
+                      return header.replace(/\s+/g, ''); // Remove white space in header names
+                    },
                     complete: (results) => {
                         if (results.errors.length) throw new Error(results.errors.join(" | "));
 
