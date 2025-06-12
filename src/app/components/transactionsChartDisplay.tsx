@@ -57,10 +57,74 @@ export const TransactionsChartDisplay = () => {
         }
     }
 
+    const mapMoneySpentToTypeChart = () => {
+        const categoryTotals = state.transactions.reduce((acc, curr) => {
+            if (!acc[curr.Category]) {
+                acc[curr.Category] = 0;
+            }
+            acc[curr.Category] += -Number(curr.Amount);
+            return acc;
+        }, {} as Record<string, number>);
+
+        const data: { name: string; y: number }[] = Object.entries(categoryTotals).map(
+            ([category, total]) => ({
+                name: category,
+                y: total,
+            })
+        );
+
+        console.log(data);
+
+        return {
+            type: "column",
+            name: "Money Spent by Category",
+            data,
+        }
+    }
+
+    const mapMoneySpentToMonthChart = () => {
+        const monthlyTotals = state.transactions.reduce((acc, curr) => {
+            const date = new Date(curr.TransactionDate);
+            const month = date.getMonth();
+            const monthName = getMonthName(month);
+        
+            if (!acc[monthName]) {
+                acc[monthName] = 0;
+            }
+            acc[monthName] += -Number(curr.Amount);
+            return acc;
+        }, {} as Record<string, number>);
+        
+        const data: { name: string; y: number }[] = Object.entries(monthlyTotals).map(
+            ([month, total]) => ({
+                name: month,
+                y: total,
+            })
+        );
+
+        console.log(data);
+
+        return {
+            type: "column",
+            name: "Money Spent by Month",
+            data,
+        }
+    }
+
     return (
-        <>
-            <BarChart series={[mapTransactionsToTypeChart()]} title="Transactions by Category" isDarkMode/>
-            <BarChart series={[mapTransactionsToMonthChart()]} title="Transactions by Month" isDarkMode/>
-        </>
+        <div className="flex flex-col">
+            <div className="flex flex-row gap-8">
+                <BarChart series={[mapTransactionsToTypeChart()]} title="Transactions by Category" isDarkMode/>
+                <BarChart series={[mapTransactionsToMonthChart()]} title="Transactions by Month" isDarkMode/>
+            </div>
+            <div className="flex flex-row gap-8">
+                <div className="flex-1">
+                    <BarChart series={[mapMoneySpentToTypeChart()]} title="Money Spent by Category" isDarkMode/>
+                </div>
+                <div className="flex-1">
+                    <BarChart series={[mapMoneySpentToMonthChart()]} title="Money Spent by Month" isDarkMode/>
+                </div>
+            </div>
+        </div>
     )
 }

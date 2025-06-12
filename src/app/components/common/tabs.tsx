@@ -16,7 +16,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs }) => {
   const [activeTab, setActiveTab] = useState(tabs[0].id);
 
   return (
-    <div className="w-full">
+    <div className="w-full min-w-5xl">
       <div className="flex border-b border-gray-300 dark:border-gray-700">
         {tabs.map((tab) => (
           <button
