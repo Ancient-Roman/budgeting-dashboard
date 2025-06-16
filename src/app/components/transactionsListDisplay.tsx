@@ -15,6 +15,6 @@ export const TransactionsListDisplay = () => {
     }
 
     return (
-        <DataTable data={state.transactions} onDelete={deleteTransaction} hiddenColumns={["Id", "Memo"]}/>
+        <DataTable data={state.transactionStrings} onDelete={deleteTransaction} hiddenColumns={["Id", "Memo"]}/>
     );
 }

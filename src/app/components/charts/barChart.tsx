@@ -6,7 +6,7 @@ import { darkTheme, lightTheme } from '@/app/styles/themes';
 export interface BarChartProps {
   title?: string;
   series?: {type: string; name: string; color?: string; data?: { name: string; y: number; }[] }[];
-  isDarkMode?: boolean; // optional flag
+  isDarkMode?: boolean;
 }
 
 const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, isDarkMode = false }) => {

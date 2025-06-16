@@ -1,9 +1,9 @@
 "use client";
 
 import { useTransactions } from "../context/transactionsContext";
-import { convertCsvToDetail } from "../helpers/csvHelpers";
 import { getMonthName } from "../helpers/date-helpers";
 import BarChart from "./charts/barChart";
+import PieChart from "./charts/pieChart";
 
 export const TransactionsChartDisplay = () => {
     const { state } = useTransactions();
@@ -45,7 +45,7 @@ export const TransactionsChartDisplay = () => {
     }
 
     const mapTransactionsToMonthChart = () => {
-        const monthCount = state.transactions.map(t => convertCsvToDetail(t).TransactionDate.getMonth());
+        const monthCount = state.transactions.map(t => t.TransactionDate.getMonth());
         const data = countByMonth(monthCount);
 
         console.log(data);
@@ -62,7 +62,7 @@ export const TransactionsChartDisplay = () => {
             if (!acc[curr.Category]) {
                 acc[curr.Category] = 0;
             }
-            acc[curr.Category] += -Number(curr.Amount);
+            acc[curr.Category] += Math.abs(curr.Amount);
             return acc;
         }, {} as Record<string, number>);
 
@@ -75,11 +75,7 @@ export const TransactionsChartDisplay = () => {
 
         console.log(data);
 
-        return {
-            type: "column",
-            name: "Money Spent by Category",
-            data,
-        }
+        return data;
     }
 
     const mapMoneySpentToMonthChart = () => {
@@ -91,7 +87,7 @@ export const TransactionsChartDisplay = () => {
             if (!acc[monthName]) {
                 acc[monthName] = 0;
             }
-            acc[monthName] += -Number(curr.Amount);
+            acc[monthName] += Math.abs(curr.Amount);
             return acc;
         }, {} as Record<string, number>);
         
@@ -119,7 +115,7 @@ export const TransactionsChartDisplay = () => {
             </div>
             <div className="flex flex-row gap-8">
                 <div className="flex-1">
-                    <BarChart series={[mapMoneySpentToTypeChart()]} title="Money Spent by Category" isDarkMode/>
+                    <PieChart data={mapMoneySpentToTypeChart()} title="Money Spent by Category" isDarkMode/>
                 </div>
                 <div className="flex-1">
                     <BarChart series={[mapMoneySpentToMonthChart()]} title="Money Spent by Month" isDarkMode/>

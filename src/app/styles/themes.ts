@@ -28,9 +28,28 @@ export const darkTheme: Highcharts.Options = {
       style: { color: '#CCCCCC' },
     },
   },
+  tooltip: {
+    backgroundColor: '#333',
+    style: {
+      color: '#FFFFFF',
+    },
+  },
   legend: {
     itemStyle: {
       color: '#FFFFFF',
+    },
+    itemHoverStyle: {
+      color: '#CCCCCC',
+    },
+  },
+  plotOptions: {
+    pie: {
+      dataLabels: {
+        color: '#FFFFFF',
+        style: {
+          color: '#FFFFFF',
+        },
+      },
     },
   },
 };

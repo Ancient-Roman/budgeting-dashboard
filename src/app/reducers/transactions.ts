@@ -1,11 +1,14 @@
-import { ParsedCsvTransaction } from "../types/csvParse";
+import { convertCsvToDetail } from "../helpers/csvHelpers";
+import { CsvTransactionDetail, ParsedCsvTransaction } from "../types/csvParse";
 
 export const initialState: TransactionsState = {
-  transactions: [],
+    transactionStrings: [],
+    transactions: [],
 };
 
 export type TransactionsState = {
-    transactions: ParsedCsvTransaction[];
+    transactionStrings: ParsedCsvTransaction[];
+    transactions: CsvTransactionDetail[]; 
 };
   
 export type Action =
@@ -16,18 +19,24 @@ export type Action =
 export function reducer(state: TransactionsState, action: Action): TransactionsState {
   switch (action.type) {
     case "addTransactions":
+        const transactionStrings = [...state.transactionStrings, ...action.payload];
+        const transactions = transactionStrings.map(t => convertCsvToDetail(t)).filter(t => t.Type !== "Payment");
+
         return {
             ...state,
-            transactions: [...state.transactions, ...action.payload],
+            transactionStrings,
+            transactions,
         };
     case "clearTransactions":
         return {
             ...state,
+            transactionStrings: [],
             transactions: [],
         };
     case "deleteTransaction":
         return {
             ...state,
+            transactionStrings: state.transactionStrings.filter(t => t.Id !== action.payload),
             transactions: state.transactions.filter(t => t.Id !== action.payload),
         };
     default:
