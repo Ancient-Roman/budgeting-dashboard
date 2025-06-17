@@ -1,12 +1,15 @@
 "use client";
 
+import { useDarkMode } from "../context/darkModeContext";
 import { useTransactions } from "../context/transactionsContext";
 import { getMonthName } from "../helpers/date-helpers";
 import BarChart from "./charts/barChart";
 import PieChart from "./charts/pieChart";
+import DateRangePicker from "./common/datePicker";
 
 export const TransactionsChartDisplay = () => {
     const { state } = useTransactions();
+    const { darkMode } = useDarkMode();
 
     function countStringArray(values: string[]) {
         const counts: Record<string | number, number> = {};
@@ -109,16 +112,22 @@ export const TransactionsChartDisplay = () => {
 
     return (
         <div className="flex flex-col">
+            <div className={`p-6 ml-auto ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+                <h1 className="text-xl mb-4">Select Date Range</h1>
+                <DateRangePicker
+                    darkMode={darkMode}
+                />
+            </div>
             <div className="flex flex-row gap-8">
-                <BarChart series={[mapTransactionsToTypeChart()]} title="Transactions by Category" isDarkMode/>
-                <BarChart series={[mapTransactionsToMonthChart()]} title="Transactions by Month" isDarkMode/>
+                <BarChart series={[mapTransactionsToTypeChart()]} title="Transactions by Category" isDarkMode={darkMode} />
+                <BarChart series={[mapTransactionsToMonthChart()]} title="Transactions by Month" isDarkMode={darkMode} />
             </div>
             <div className="flex flex-row gap-8">
                 <div className="flex-1">
-                    <PieChart data={mapMoneySpentToTypeChart()} title="Money Spent by Category" isDarkMode/>
+                    <PieChart data={mapMoneySpentToTypeChart()} title="Money Spent by Category" isDarkMode={darkMode} />
                 </div>
                 <div className="flex-1">
-                    <BarChart series={[mapMoneySpentToMonthChart()]} title="Money Spent by Month" isDarkMode/>
+                    <BarChart series={[mapMoneySpentToMonthChart()]} title="Money Spent by Month" isDarkMode={darkMode} />
                 </div>
             </div>
         </div>

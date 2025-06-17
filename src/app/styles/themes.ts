@@ -1,89 +1,84 @@
 // themes.ts
 import Highcharts from 'highcharts';
 
-export const darkTheme: Highcharts.Options = {
+export const lightTheme: Highcharts.Options = {
   chart: {
-    backgroundColor: 'transparent',
     style: {
-      fontFamily: "'Inter', sans-serif",
+      color: '#000000',
     },
   },
   title: {
-    style: { color: '#FFFFFF' },
+    style: {
+      color: '#000000',
+    },
   },
   xAxis: {
     labels: {
-      style: { color: '#CCCCCC' },
+      style: {
+        color: '#000000',
+      },
     },
-    gridLineColor: '#444',
-    lineColor: '#666',
+    lineColor: '#ccc',
+    tickColor: '#ccc',
   },
   yAxis: {
     labels: {
-      style: { color: '#CCCCCC' },
+      style: {
+        color: '#000000',
+      },
     },
-    gridLineColor: '#444',
-    lineColor: '#666',
+    gridLineColor: '#e6e6e6',
     title: {
-      style: { color: '#CCCCCC' },
+      style: {
+        color: '#000000',
+      },
     },
   },
   tooltip: {
-    backgroundColor: '#333',
+    backgroundColor: '#f0f0f0',
     style: {
-      color: '#FFFFFF',
-    },
-  },
-  legend: {
-    itemStyle: {
-      color: '#FFFFFF',
-    },
-    itemHoverStyle: {
-      color: '#CCCCCC',
-    },
-  },
-  plotOptions: {
-    pie: {
-      dataLabels: {
-        color: '#FFFFFF',
-        style: {
-          color: '#FFFFFF',
-        },
-      },
+      color: '#000000',
     },
   },
 };
 
-export const lightTheme: Highcharts.Options = {
+export const darkTheme: Highcharts.Options = {
   chart: {
-    backgroundColor: 'transparent',
     style: {
-      fontFamily: "'Inter', sans-serif",
+      color: '#e2e8f0', // slate-300 light text
     },
   },
   title: {
-    style: { color: '#1F2937' },
+    style: {
+      color: '#e2e8f0',
+    },
   },
   xAxis: {
     labels: {
-      style: { color: '#374151' },
+      style: {
+        color: '#cbd5e1', // slate-400
+      },
     },
-    gridLineColor: '#E5E7EB',
-    lineColor: '#D1D5DB',
+    lineColor: '#334155', // slate-700
+    tickColor: '#334155',
   },
   yAxis: {
     labels: {
-      style: { color: '#374151' },
+      style: {
+        color: '#cbd5e1',
+      },
     },
-    gridLineColor: '#E5E7EB',
-    lineColor: '#D1D5DB',
+    gridLineColor: '#475569', // slate-600
     title: {
-      style: { color: '#374151' },
+      style: {
+        color: '#cbd5e1',
+      },
     },
   },
-  legend: {
-    itemStyle: {
-      color: '#1F2937',
+  tooltip: {
+    backgroundColor: '#334155',
+    style: {
+      color: '#e2e8f0',
     },
   },
 };

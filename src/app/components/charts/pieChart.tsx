@@ -1,5 +1,4 @@
-// PieChart.tsx
-import React, { useEffect } from 'react';
+import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { darkTheme, lightTheme } from '@/app/styles/themes';
@@ -13,54 +12,60 @@ type PieChartProps = {
   isDarkMode?: boolean;
 }
 
-const PieChart: React.FC<PieChartProps> = ({ title = 'Pie Chart', data, isDarkMode }) => {
-    useEffect(() => {
-        // Dynamically apply theme based on dark mode
-        Highcharts.setOptions(isDarkMode ? darkTheme : lightTheme);
-    }, [isDarkMode]);
+const PieChart: React.FC<PieChartProps> = ({
+    title = 'Pie Chart',
+    data,
+    isDarkMode = false,
+}) => {
+    const theme = isDarkMode ? darkTheme : lightTheme;
 
     const labelColor = isDarkMode ? '#FFFFFF' : '#000000';
-      
+  
     const options: Highcharts.Options = {
-        chart: {
-            type: 'pie',
+      chart: {
+        type: 'pie',
+        backgroundColor: theme.chart?.backgroundColor,
+        style: theme.chart?.style,
+      },
+      title: {
+        text: title,
+        style: theme.title?.style,
+      },
+      tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+        style: theme.tooltip?.style,
+        // Avoid backgroundColor here; style only supports text color
+      },
+      accessibility: {
+        point: {
+          valueSuffix: '%',
         },
-        title: {
-            text: title,
+      },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: true,
+            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+            color: labelColor,
+          },
         },
-        tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
-        },
-        accessibility: {
-            point: {
-                valueSuffix: '%',
-            },
-        },
-        plotOptions: {
-            pie: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    color: labelColor,
-                },
-            },
-        },
-        series: [
-            {
-                name: 'Share',
-                colorByPoint: true,
-                type: 'pie',
-                data: data,
-            } as Highcharts.SeriesPieOptions,
-        ],
-        credits: {
-            enabled: false,
-        },
+      },
+      series: [
+        {
+          name: 'Share',
+          colorByPoint: true,
+          type: 'pie',
+          data,
+        } as Highcharts.SeriesPieOptions,
+      ],
+      credits: {
+        enabled: false,
+      },
     };
-
+  
     return <HighchartsReact highcharts={Highcharts} options={options} />;
 };
-
+  
 export default PieChart;
