@@ -32,7 +32,7 @@ const PieChart: React.FC<PieChartProps> = ({
         style: theme.title?.style,
       },
       tooltip: {
-        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b><br/>${point.y:.2f}',
         style: theme.tooltip?.style,
         // Avoid backgroundColor here; style only supports text color
       },

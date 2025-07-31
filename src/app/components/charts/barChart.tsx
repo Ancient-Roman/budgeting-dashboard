@@ -47,6 +47,10 @@ const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, isDark
       valueSuffix: '',
       backgroundColor: theme.tooltip?.backgroundColor,
       style: theme.tooltip?.style,
+      formatter: function () {
+        return `<b>${this.name}</b><br/>` +
+          `$${this.y?.toFixed(2)}`;
+      }
     },
     plotOptions: {
       bar: {
