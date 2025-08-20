@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "fs": "0.0.1-security",
     "highcharts": "^12.2.0",
     "highcharts-react-official": "^3.2.2",
     "next": "15.3.1",

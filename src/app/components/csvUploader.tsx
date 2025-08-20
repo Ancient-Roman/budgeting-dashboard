@@ -1,48 +1,68 @@
 'use client';
 
-import React, { useRef } from 'react';
-import Papa from 'papaparse';
-import { ParsedCsvTransaction } from '../types/csvParse';
+import React from 'react';
 import { useTransactions } from '../context/transactionsContext';
+import { parseCsvWithOptionalHeaders } from '../helpers/csvHelpers';
+import { categorizeTransaction } from '../helpers/categoryHelper';
 
 const CSVUpload = () => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const { dispatch } = useTransactions();
 
+  React.useEffect(() => {
+    console.log('fileInputRef on mount:', fileInputRef.current); // ✅ Should NOT be null
+  }, []);
+
   const handleButtonClick = () => {
-    fileInputRef.current?.click();
+    console.log('Button clicked');
+    fileInputRef.current?.click(); // Trigger file picker
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
+    const formData = new FormData();
+    Array.from(files).forEach((file) => {
+      if (file.name.endsWith('.csv')) {
+        formData.append('files', file);
+      }
+    });
+
+    fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          handleFileChange(data.files.map(f => f.content));
+        } else {
+          alert('Upload failed');
+        }
+      });
+  };
+
+  const handleFileChange = (files: string[]) => {
     if (files && files.length > 0) {
-        const fileArray = Array.from(files);
 
-        fileArray.forEach(file => {
-            if (file && file.type === 'text/csv') {
-                Papa.parse<ParsedCsvTransaction>(file, {
-                    header: true,
-                    skipEmptyLines: true,
-                    transformHeader: function(header) {
-                      return header.replace(/\s+/g, ''); // Remove white space in header names
-                    },
-                    complete: (results) => {
-                        if (results.errors.length) throw new Error(results.errors.join(" | "));
+        files.forEach(file => {
+                const result = parseCsvWithOptionalHeaders(file);
 
-                        const resultsWithId = results.data.map((d, idx) => ({ ...d, Id: idx }));
+                if (result.errors.length) throw new Error(result.errors.join(" | "));
 
-                        dispatch({
-                            type: "addTransactions",
-                            payload: resultsWithId,
-                        })
-                    },
-                    error: (err) => {
-                        console.error('Error parsing CSV:', err);
-                    },
-                });
-              }
+                const resultsWithId = result.data.map((d, idx) => ({ ...d, Id: idx }));
+
+                const resultsWithCategory = resultsWithId.map((transaction => ({
+                  ...transaction,
+                  Category: transaction.Category ? transaction.Category : categorizeTransaction(transaction)
+                })));
+
+                dispatch({
+                    type: "addTransactions",
+                    payload: resultsWithCategory,
+                })
         });
       }
   };
@@ -51,15 +71,13 @@ const CSVUpload = () => {
     <div className="cursor-pointer border border-white rounded p-4">
       <button className="cursor-pointer" type="button" onClick={handleButtonClick}>
         Upload CSV(s)
-      </button>
-      <input
-        type="file"
-        accept=".csv"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-        multiple
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleFileSelect}
+          multiple
       />
+      </button>
     </div>
   );
 };

@@ -1,12 +1,12 @@
 export type ParsedCsvTransaction = {
     Id: number;
     Amount: string;
-    Category: string;
+    Category?: string;
     Description: string;
-    Memo: string;
-    PostDate: string;
+    Memo?: string;
+    PostDate?: string;
     TransactionDate: string;
-    Type: string;
+    Type?: string;
 }
 
 export type CsvTransactionDetail = {
@@ -14,8 +14,12 @@ export type CsvTransactionDetail = {
     Amount: number;
     Category: string;
     Description: string;
-    Memo: string;
-    PostDate: Date;
+    Memo?: string;
+    PostDate?: Date;
     TransactionDate: Date;
-    Type: string;
+    Type?: string;
 }
+
+// essential columns needed for analysis
+export type ColumnType = 'TransactionDate' | 'Amount' | 'Description';
+export type OutputColumnType = ColumnType | "";
