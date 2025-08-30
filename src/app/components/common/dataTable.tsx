@@ -1,3 +1,4 @@
+import { useDarkMode } from '@/app/context/darkModeContext';
 import React, { useState } from 'react';
 
 type SortDirection = 'asc' | 'desc';
@@ -19,6 +20,8 @@ export function DataTable<T extends object>({
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(defaultPageSize);
+
+  const { darkMode } = useDarkMode();
 
   if (data.length === 0) return <div className="text-gray-400">No data available.</div>;
 
@@ -59,13 +62,25 @@ export function DataTable<T extends object>({
   const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
-    <div className="text-sm text-gray-200">
+    <div
+      className={
+        `text-sm ` +
+        (darkMode
+          ? 'text-gray-200'
+          : 'text-gray-800')
+      }
+    >
       {/* Page size selector */}
       <div className="mb-2 flex justify-between items-center">
         <label>
           Show{' '}
           <select
-            className="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-white"
+            className={
+              (darkMode
+                ? 'bg-gray-800 border border-gray-600 text-white'
+                : 'bg-white border border-gray-300 text-gray-900') +
+              ' rounded px-2 py-1'
+            }
             value={pageSize}
             onChange={handlePageSizeChange}
           >
@@ -79,14 +94,26 @@ export function DataTable<T extends object>({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-700 divide-y divide-gray-700 bg-gray-900 text-left">
-          <thead className="bg-gray-800 text-gray-300">
+        <table
+          className={
+            'min-w-full divide-y text-left ' +
+            (darkMode
+              ? 'border border-gray-700 divide-gray-700 bg-gray-900'
+              : 'border border-gray-300 divide-gray-200 bg-white')
+          }
+        >
+          <thead className={darkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'}>
             <tr>
               {headers.map((key) => (
                 <th
                   key={String(key)}
                   onClick={() => handleSort(key)}
-                  className="px-4 py-2 cursor-pointer hover:text-white"
+                  className={
+                    'px-4 py-2 cursor-pointer ' +
+                    (darkMode
+                      ? 'hover:text-white'
+                      : 'hover:text-black')
+                  }
                 >
                   <div className="flex items-center justify-between">
                     <span>{String(key)}</span>
@@ -103,18 +130,42 @@ export function DataTable<T extends object>({
             {paginatedData.map((row, rowIdx) => (
               <tr
                 key={rowIdx}
-                className={rowIdx % 2 === 0 ? 'bg-gray-800' : 'bg-gray-900'}
+                className={
+                  darkMode
+                    ? rowIdx % 2 === 0
+                      ? 'bg-gray-800'
+                      : 'bg-gray-900'
+                    : rowIdx % 2 === 0
+                      ? 'bg-gray-100'
+                      : 'bg-white'
+                }
               >
                 {headers.map((key) => (
-                  <td key={String(key)} className="px-4 py-2 border-t border-gray-700">
+                  <td
+                    key={String(key)}
+                    className={
+                      'px-4 py-2 border-t ' +
+                      (darkMode ? 'border-gray-700' : 'border-gray-200')
+                    }
+                  >
                     {String(row[key])}
                   </td>
                 ))}
                 {onDelete && (
-                  <td className="px-4 py-2 border-t border-gray-700">
+                  <td
+                    className={
+                      'px-4 py-2 border-t ' +
+                      (darkMode ? 'border-gray-700' : 'border-gray-200')
+                    }
+                  >
                     <button
                       onClick={() => onDelete(row)}
-                      className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                      className={
+                        'px-2 py-1 rounded ' +
+                        (darkMode
+                          ? 'bg-red-600 text-white hover:bg-red-700'
+                          : 'bg-red-500 text-white hover:bg-red-600')
+                      }
                     >
                       Delete
                     </button>
@@ -131,17 +182,27 @@ export function DataTable<T extends object>({
         <button
           onClick={() => setCurrentPage((p) => p - 1)}
           disabled={currentPage === 1}
-          className="px-3 py-1 bg-gray-800 border border-gray-600 rounded text-white disabled:opacity-50"
+          className={
+            'px-3 py-1 rounded ' +
+            (darkMode
+              ? 'bg-gray-800 border border-gray-600 text-white disabled:opacity-50'
+              : 'bg-gray-100 border border-gray-300 text-gray-800 disabled:opacity-50')
+          }
         >
           Previous
         </button>
-        <span className="text-gray-400">
+        <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
           Page {currentPage} of {totalPages}
         </span>
         <button
           onClick={() => setCurrentPage((p) => p + 1)}
           disabled={currentPage === totalPages}
-          className="px-3 py-1 bg-gray-800 border border-gray-600 rounded text-white disabled:opacity-50"
+          className={
+            'px-3 py-1 rounded ' +
+            (darkMode
+              ? 'bg-gray-800 border border-gray-600 text-white disabled:opacity-50'
+              : 'bg-gray-100 border border-gray-300 text-gray-800 disabled:opacity-50')
+          }
         >
           Next
         </button>
