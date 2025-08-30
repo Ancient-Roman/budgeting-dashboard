@@ -10,13 +10,8 @@ const CSVUpload = () => {
 
   const { dispatch } = useTransactions();
 
-  React.useEffect(() => {
-    console.log('fileInputRef on mount:', fileInputRef.current); // ✅ Should NOT be null
-  }, []);
-
   const handleButtonClick = () => {
-    console.log('Button clicked');
-    fileInputRef.current?.click(); // Trigger file picker
+    fileInputRef.current?.click();
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,25 +41,22 @@ const CSVUpload = () => {
 
   const handleFileChange = (files: string[]) => {
     if (files && files.length > 0) {
-
-        files.forEach(file => {
-                const result = parseCsvWithOptionalHeaders(file);
-
-                if (result.errors.length) throw new Error(result.errors.join(" | "));
-
-                const resultsWithId = result.data.map((d, idx) => ({ ...d, Id: idx }));
-
-                const resultsWithCategory = resultsWithId.map((transaction => ({
-                  ...transaction,
-                  Category: transaction.Category ? transaction.Category : categorizeTransaction(transaction)
-                })));
-
-                dispatch({
-                    type: "addTransactions",
-                    payload: resultsWithCategory,
-                })
-        });
-      }
+      files.forEach(file => {
+        const result = parseCsvWithOptionalHeaders(file);
+        if (result.errors.length) throw new Error(result.errors.join(" | "));
+        
+        const resultsWithId = result.data.map((d, idx) => ({ ...d, Id: idx }));
+        const resultsWithCategory = resultsWithId.map((transaction => ({
+          ...transaction,
+          Category: transaction.Category ? transaction.Category : categorizeTransaction(transaction)
+        })));
+        
+        dispatch({
+            type: "addTransactions",
+            payload: resultsWithCategory,
+        })
+      });
+    }
   };
 
   return (
@@ -76,6 +68,8 @@ const CSVUpload = () => {
           accept=".csv"
           onChange={handleFileSelect}
           multiple
+          hidden
+          ref={fileInputRef}
       />
       </button>
     </div>
