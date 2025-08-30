@@ -22,6 +22,7 @@ export function categorizeTransaction(transaction: Transaction): Category {
   const amount = transaction.Amount;
 
   const keywordMap: { [key in Category]?: string[] } = {
+    "Bills & Utilities": ["utility", "electric", "water", "internet", "cable", "comcast", "verizon", "t-mobile", "bill", "energy", "penstock", "Bear Granville", "insurance"],
     "Food & drink": ["restaurant", "coffee", "cafe", "bar", "mcdonald", "burger", "pizza", "kfc", "dunkin", "starbucks", "chipotle"],
     "Health & wellness": ["pharmacy", "drugstore", "doctor", "dentist", "clinic", "hospital", "vision", "chiropractor"],
     "Gifts & donations": ["donation", "gift", "charity", "nonprofit", "church"],
@@ -32,7 +33,6 @@ export function categorizeTransaction(transaction: Transaction): Category {
     "Groceries": ["grocery", "supermarket", "walmart", "whole foods", "trader joe", "aldi", "kroger", "safeway", "food market"],
     "Home": ["furniture", "home depot", "lowe's", "ikea", "appliance", "mattress", "bed"],
     "Entertainment": ["netflix", "spotify", "movie", "cinema", "amc", "game", "concert", "event", "show"],
-    "Bills & Utilities": ["utility", "electric", "water", "internet", "cable", "comcast", "verizon", "t-mobile", "bill", "energy", "penstock"],
   };
 
   for (const category in keywordMap) {

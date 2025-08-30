@@ -20,8 +20,11 @@ const CSVUpload = () => {
 
     const formData = new FormData();
     Array.from(files).forEach((file) => {
-      if (file.name.endsWith('.csv')) {
+      if (file.name.toLowerCase().endsWith('.csv')) {
         formData.append('files', file);
+      }
+      else {
+        alert(`File ${file.name} is not a CSV and will be ignored.`);
       }
     });
 
@@ -32,14 +35,17 @@ const CSVUpload = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
+          console.log(data);
           handleFileChange(data.files.map(f => f.content));
         } else {
-          alert('Upload failed');
+          alert(`Error uploading files: ${data.error}`);
+          console.error(data);
         }
       });
   };
 
   const handleFileChange = (files: string[]) => {
+    console.log("Processing files:", files.join(", "));
     if (files && files.length > 0) {
       files.forEach(file => {
         const result = parseCsvWithOptionalHeaders(file);
