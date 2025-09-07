@@ -24,7 +24,8 @@ export type Action =
     | { type: 'addTransactions'; payload: ParsedCsvTransaction[] }
     | { type: 'deleteTransaction'; payload: number }
     | { type: 'clearTransactions'; payload: undefined }
-    | { type: 'setDateRange'; payload: DateRange };
+    | { type: 'setDateRange'; payload: DateRange }
+    | { type: 'setTransactionCategory'; payload: {id: number, category: string} };
 
 export function reducer(state: TransactionsState, action: Action): TransactionsState {
   switch (action.type) {
@@ -58,6 +59,25 @@ export function reducer(state: TransactionsState, action: Action): TransactionsS
             dateRange: action.payload,
             filteredTransactions: filterTransactions(state.transactions, action.payload),
         }
+    case "setTransactionCategory":
+        return {
+            ...state,
+            transactions: state.transactions.map(t =>
+                t.Id === action.payload.id
+                    ? { ...t, Category: action.payload.category }
+                    : t
+            ),
+            transactionStrings: state.transactionStrings.map(t =>
+                t.Id === action.payload.id
+                    ? { ...t, Category: action.payload.category }
+                    : t
+            ),
+            filteredTransactions: state.filteredTransactions.map(t =>
+                t.Id === action.payload.id
+                    ? { ...t, Category: action.payload.category }
+                    : t
+            ),
+        };
     default:
       return state;
   }

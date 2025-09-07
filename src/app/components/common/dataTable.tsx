@@ -1,16 +1,18 @@
 import { useDarkMode } from '@/app/context/darkModeContext';
+import { useTransactions } from '@/app/context/transactionsContext';
 import React, { useState } from 'react';
 
 type SortDirection = 'asc' | 'desc';
 
-type DataTableProps<T extends object> = {
+type WithId = { Id: number };
+type DataTableProps<T extends WithId> = {
   data: T[];
   defaultPageSize?: number;
   onDelete?: (row: T) => void;
   hiddenColumns?: (keyof T)[];
 };
 
-export function DataTable<T extends object>({
+export function DataTable<T extends WithId>({
   data,
   defaultPageSize = 10,
   onDelete,
@@ -22,6 +24,7 @@ export function DataTable<T extends object>({
   const [pageSize, setPageSize] = useState(defaultPageSize);
 
   const { darkMode } = useDarkMode();
+  const { dispatch } = useTransactions();
 
   if (data.length === 0) return <div className="text-gray-400">No data available.</div>;
 
@@ -60,6 +63,22 @@ export function DataTable<T extends object>({
 
   const totalPages = Math.ceil(sortedData.length / pageSize);
   const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // List of categories (should match your Category type)
+  const categories = [
+    "Food & drink",
+    "Health & wellness",
+    "Gifts & donations",
+    "Automotive",
+    "Gas",
+    "Travel",
+    "Shopping",
+    "Groceries",
+    "Home",
+    "Entertainment",
+    "Bills & Utilities",
+    "Uncategorized",
+  ];
 
   return (
     <div
@@ -148,7 +167,29 @@ export function DataTable<T extends object>({
                       (darkMode ? 'border-gray-700' : 'border-gray-200')
                     }
                   >
-                    {String(row[key])}
+                    {String(key) === 'Category' ? (
+                      <select
+                        value={row[key] as string}
+                        onChange={e => {
+                          dispatch({
+                            type: 'setTransactionCategory',
+                            payload: { id: row.Id, category: e.target.value }
+                          });
+                        }}
+                        className={
+                          (darkMode
+                            ? 'bg-gray-800 text-white border border-gray-600'
+                            : 'bg-white text-gray-900 border border-gray-300') +
+                          ' rounded px-2 py-1'
+                        }
+                      >
+                        {categories.map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      String(row[key])
+                    )}
                   </td>
                 ))}
                 {onDelete && (
