@@ -24,6 +24,47 @@ export const TransactionsChartDisplay = () => {
         }
     }, [state.dateRange, state.transactions]);
 
+    const mapIncomeVsExpensesByMonthChart = () => {
+        // Group transactions by month, summing income and expenses
+        const monthlyTotals: Record<string, { income: number; expenses: number }> = {};
+
+        transactionsInDateRange.forEach((t) => {
+            const month = getMonthName(t.TransactionDate.getMonth());
+            if (!monthlyTotals[month]) {
+                monthlyTotals[month] = { income: 0, expenses: 0 };
+            }
+            if (t.Amount > 0) {
+                monthlyTotals[month].income += t.Amount;
+            } else if (t.Amount < 0) {
+                monthlyTotals[month].expenses += Math.abs(t.Amount);
+            }
+        });
+
+        // Prepare series data for Highcharts
+        const months = Object.keys(monthlyTotals);
+        const incomeData = months.map((month) => ({
+            name: month,
+            y: monthlyTotals[month].income,
+        }));
+        const expensesData = months.map((month) => ({
+            name: month,
+            y: monthlyTotals[month].expenses,
+        }));
+
+        return [
+            {
+                type: "column",
+                name: "Income",
+                data: incomeData,
+            },
+            {
+                type: "column",
+                name: "Expenses",
+                data: expensesData,
+            },
+        ];
+    };
+
     function countStringArray(values: string[]) {
         const counts: Record<string | number, number> = {};
       
@@ -118,7 +159,7 @@ export const TransactionsChartDisplay = () => {
 
         return {
             type: "column",
-            name: "Money Spent by Month",
+            name: "Money Spent",
             data,
         }
     }
@@ -130,11 +171,19 @@ export const TransactionsChartDisplay = () => {
 
     return (
         <div className="flex flex-col">
-            <div className={`p-6 ml-auto ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
-                <h1 className="text-xl mb-4">Select Date Range</h1>
-                <DateRangePicker
-                    darkMode={darkMode}
+            <div className="flex flex-row gap-8 mb-8">
+                <BarChart 
+                    series={mapIncomeVsExpensesByMonthChart()} 
+                    title="Income vs Expenses by Month" 
+                    isDarkMode={darkMode} 
+                    legendEnabled={true}
                 />
+                <div className={`p-6 ml-auto ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+                    <h1 className="text-xl mb-4">Select Date Range</h1>
+                    <DateRangePicker
+                        darkMode={darkMode}
+                    />
+                </div>
             </div>
             <div className="flex flex-row gap-8">
                 <BarChart 

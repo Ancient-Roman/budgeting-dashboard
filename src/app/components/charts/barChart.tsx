@@ -13,8 +13,9 @@ export interface BarChartProps {
   series?: {type: string; name: string; color?: string; data?: { name: string; y: number; }[] }[];
   isDarkMode?: boolean;
   tooltipFormatter?: Highcharts.TooltipFormatterCallbackFunction;
+  legendEnabled?: boolean;
 }
-const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, tooltipFormatter, isDarkMode = false }) => {
+const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, tooltipFormatter, isDarkMode = false, legendEnabled = false }) => {
   // Merge base options with theme options
   const theme = isDarkMode ? darkTheme : lightTheme;
 
@@ -56,7 +57,7 @@ const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, toolti
         ? tooltipFormatter 
         : function () {
           return `<b>${this.name}</b><br/>` +
-            `$${this.y?.toFixed(2)}`;
+            `${this.series.name}: $${this.y?.toFixed(2)}`;
         }
     },
     plotOptions: {
@@ -70,10 +71,10 @@ const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, toolti
       },
     },
     legend: {
-      enabled: false,
-      itemStyle: theme.legend?.itemStyle,
-      itemHoverStyle: theme.legend?.itemHoverStyle,
-      itemHiddenStyle: theme.legend?.itemHiddenStyle,
+      enabled: legendEnabled,
+      itemStyle: {
+        color: isDarkMode ? '#e2e8f0' : '#000000',
+      },
     },
     series: series as Highcharts.SeriesOptionsType[],
     credits: {
