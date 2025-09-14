@@ -8,8 +8,13 @@ export interface BarChartProps {
   series?: {type: string; name: string; color?: string; data?: { name: string; y: number; }[] }[];
   isDarkMode?: boolean;
 }
-
-const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, isDarkMode = false }) => {
+export interface BarChartProps {
+  title?: string;
+  series?: {type: string; name: string; color?: string; data?: { name: string; y: number; }[] }[];
+  isDarkMode?: boolean;
+  tooltipFormatter?: Highcharts.TooltipFormatterCallbackFunction;
+}
+const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, tooltipFormatter, isDarkMode = false }) => {
   // Merge base options with theme options
   const theme = isDarkMode ? darkTheme : lightTheme;
 
@@ -28,29 +33,31 @@ const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, isDark
       title: {
         text: null,
       },
-      labels: theme.xAxis?.labels,
-      lineColor: theme.xAxis?.lineColor,
-      tickColor: theme.xAxis?.tickColor,
+      labels: Array.isArray(theme.xAxis) ? undefined : theme.xAxis?.labels,
+      lineColor: Array.isArray(theme.xAxis) ? undefined : theme.xAxis?.lineColor,
+      tickColor: Array.isArray(theme.xAxis) ? undefined : theme.xAxis?.tickColor,
+      allowDecimals: false,
     },
     yAxis: {
       min: 0,
       title: {
-        text: 'Values',
-        align: 'high',
-        style: theme.yAxis?.title.style,
+        text: "",
+        style: !Array.isArray(theme.yAxis) ? theme.yAxis?.title?.style : undefined,
       },
-      labels: theme.yAxis?.labels,
-      gridLineColor: theme.yAxis?.gridLineColor,
-      overflow: 'justify',
+      labels: !Array.isArray(theme.yAxis) ? theme.yAxis?.labels : undefined,
+      gridLineColor: !Array.isArray(theme.yAxis) ? theme.yAxis?.gridLineColor : undefined,
+      allowDecimals: false,
     },
     tooltip: {
       valueSuffix: '',
       backgroundColor: theme.tooltip?.backgroundColor,
       style: theme.tooltip?.style,
-      formatter: function () {
-        return `<b>${this.name}</b><br/>` +
-          `$${this.y?.toFixed(2)}`;
-      }
+      formatter: tooltipFormatter 
+        ? tooltipFormatter 
+        : function () {
+          return `<b>${this.name}</b><br/>` +
+            `$${this.y?.toFixed(2)}`;
+        }
     },
     plotOptions: {
       bar: {
@@ -61,6 +68,12 @@ const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, isDark
           },
         },
       },
+    },
+    legend: {
+      enabled: false,
+      itemStyle: theme.legend?.itemStyle,
+      itemHoverStyle: theme.legend?.itemHoverStyle,
+      itemHiddenStyle: theme.legend?.itemHiddenStyle,
     },
     series: series as Highcharts.SeriesOptionsType[],
     credits: {

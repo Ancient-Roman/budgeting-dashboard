@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 import { useDarkMode } from "../context/darkModeContext";
 import { useTransactions } from "../context/transactionsContext";
 import { getMonthName } from "../helpers/date-helpers";
@@ -10,6 +12,17 @@ import DateRangePicker from "./common/datePicker";
 export const TransactionsChartDisplay = () => {
     const { state } = useTransactions();
     const { darkMode } = useDarkMode();
+
+    const [transactionsInDateRange, setTransactionsInDateRange] = React.useState(state.transactions);
+
+    React.useEffect(() => {
+        if (state.dateRange.startDate && state.dateRange.endDate) {
+            const filtered = state.transactions.filter(t => {
+                return t.TransactionDate >= state.dateRange.startDate! && t.TransactionDate <= state.dateRange.endDate!
+            });
+            setTransactionsInDateRange(filtered);
+        }
+    }, [state.dateRange, state.transactions]);
 
     function countStringArray(values: string[]) {
         const counts: Record<string | number, number> = {};
@@ -36,7 +49,7 @@ export const TransactionsChartDisplay = () => {
     }
 
     const mapTransactionsToTypeChart = () => {
-        const data = countStringArray(state.transactions.map(t => t.Category));
+        const data = countStringArray(transactionsInDateRange.map(t => t.Category));
 
         console.log(data);
 
@@ -48,7 +61,7 @@ export const TransactionsChartDisplay = () => {
     }
 
     const mapTransactionsToMonthChart = () => {
-        const monthCount = state.transactions.map(t => t.TransactionDate.getMonth());
+        const monthCount = transactionsInDateRange.map(t => t.TransactionDate.getMonth());
         const data = countByMonth(monthCount);
 
         console.log(data);
@@ -61,7 +74,7 @@ export const TransactionsChartDisplay = () => {
     }
 
     const mapMoneySpentToTypeChart = () => {
-        const categoryTotals = state.transactions.reduce((acc, curr) => {
+        const categoryTotals = transactionsInDateRange.reduce((acc, curr) => {
             if (!acc[curr.Category]) {
                 acc[curr.Category] = 0;
             }
@@ -82,7 +95,7 @@ export const TransactionsChartDisplay = () => {
     }
 
     const mapMoneySpentToMonthChart = () => {
-        const monthlyTotals = state.transactions.reduce((acc, curr) => {
+        const monthlyTotals = transactionsInDateRange.reduce((acc, curr) => {
             const date = new Date(curr.TransactionDate);
             const month = date.getMonth();
             const monthName = getMonthName(month);
@@ -110,6 +123,11 @@ export const TransactionsChartDisplay = () => {
         }
     }
 
+    const transactionsTooltipFormatter: Highcharts.TooltipFormatterCallbackFunction = function () {
+        return `<b>${this.name}</b><br/>` +
+          `Transactions: ${this.y}`;
+    }
+
     return (
         <div className="flex flex-col">
             <div className={`p-6 ml-auto ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
@@ -119,8 +137,18 @@ export const TransactionsChartDisplay = () => {
                 />
             </div>
             <div className="flex flex-row gap-8">
-                <BarChart series={[mapTransactionsToTypeChart()]} title="Transactions by Category" isDarkMode={darkMode} />
-                <BarChart series={[mapTransactionsToMonthChart()]} title="Transactions by Month" isDarkMode={darkMode} />
+                <BarChart 
+                    series={[mapTransactionsToTypeChart()]} 
+                    title="Transactions by Category" 
+                    isDarkMode={darkMode}  
+                    tooltipFormatter={transactionsTooltipFormatter}
+                />
+                <BarChart 
+                    series={[mapTransactionsToMonthChart()]} 
+                    title="Transactions by Month" 
+                    isDarkMode={darkMode} 
+                    tooltipFormatter={transactionsTooltipFormatter}
+                />
             </div>
             <div className="flex flex-row gap-8">
                 <div className="flex-1">
