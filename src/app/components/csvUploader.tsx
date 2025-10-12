@@ -4,6 +4,7 @@ import React from 'react';
 import { useTransactions } from '../context/transactionsContext';
 import { parseCsvWithOptionalHeaders } from '../helpers/csvHelpers';
 import { categorizeTransaction } from '../helpers/categoryHelper';
+import { DateRange } from '../types/date';
 
 const CSVUpload = () => {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -61,6 +62,16 @@ const CSVUpload = () => {
             type: "addTransactions",
             payload: resultsWithCategory,
         })
+
+        // dispatch date range to max span of transactions
+        const dates = resultsWithCategory.map(t => new Date(t.TransactionDate));
+        const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+        const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+        const dateRange: DateRange = { startDate: minDate, endDate: maxDate };
+        dispatch({
+          type: "setDateRange",
+          payload: dateRange,
+        });
       });
     }
   };
