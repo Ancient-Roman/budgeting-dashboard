@@ -8,6 +8,7 @@ import { TransactionsChartDisplay } from "./components/transactionsChartDisplay"
 import React from "react";
 import { DarkModeToggle } from "./components/common/darkModeToggle";
 import { DarkModeProviderWrapper } from "./components/client-wrappers/darkModeProviderWrapper";
+import { BudgetDisplay } from "./components/budgetDisplay";
 
 export default function Home() {
   const tabs: Tab[] = [
@@ -20,6 +21,11 @@ export default function Home() {
       id: "2",
       label: "Charts",
       content: <TransactionsChartDisplay />,
+    },
+    {
+      id: "3",
+      label: "Budget",
+      content: <BudgetDisplay />,
     }
   ];
 
