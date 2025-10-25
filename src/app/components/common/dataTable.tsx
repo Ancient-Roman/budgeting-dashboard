@@ -1,5 +1,6 @@
 import { useDarkMode } from '@/app/context/darkModeContext';
 import { useTransactions } from '@/app/context/transactionsContext';
+import { CATEGORY_LIST } from '@/app/helpers/categoryHelper';
 import React, { useState } from 'react';
 
 type SortDirection = 'asc' | 'desc';
@@ -64,21 +65,8 @@ export function DataTable<T extends WithId>({
   const totalPages = Math.ceil(sortedData.length / pageSize);
   const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  // List of categories (should match your Category type)
-  const categories = [
-    "Food & drink",
-    "Health & wellness",
-    "Gifts & donations",
-    "Automotive",
-    "Gas",
-    "Travel",
-    "Shopping",
-    "Groceries",
-    "Home",
-    "Entertainment",
-    "Bills & Utilities",
-    "Uncategorized",
-  ];
+  // Use shared category list
+  const categories = CATEGORY_LIST;
 
   return (
     <div

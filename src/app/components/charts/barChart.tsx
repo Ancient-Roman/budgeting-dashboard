@@ -40,7 +40,7 @@ const BarChart: React.FC<BarChartProps> = ({ title = 'Bar Chart', series, toolti
       allowDecimals: false,
     },
     yAxis: {
-      min: 0,
+      min: undefined,
       title: {
         text: "",
         style: !Array.isArray(theme.yAxis) ? theme.yAxis?.title?.style : undefined,

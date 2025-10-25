@@ -2,17 +2,17 @@
 
 import { useTransactions } from '@/app/context/transactionsContext';
 import React from 'react';
+import { useDarkMode } from '@/app/context/darkModeContext';
 import DatePicker from 'react-datepicker';
 
 interface DateRangePickerProps {
   darkMode?: boolean;
 }
 
-const DateRangePicker: React.FC<DateRangePickerProps> = ({
-  darkMode = false,
-}) => {
-  const { state, dispatch } = useTransactions();
 
+const DateRangePicker: React.FC<DateRangePickerProps> = () => {
+  const { state, dispatch } = useTransactions();
+  const { darkMode } = useDarkMode();
   const { dateRange } = state;
 
   const onDateRangeUpdate = (dates: [Date | null, Date | null]) => {
@@ -54,9 +54,41 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
         endDate={dateRange.endDate}
         selectsRange
         className={inputClassName}
+        popperClassName={darkMode ? 'react-datepicker-dark' : ''}
+        calendarClassName={darkMode ? 'react-datepicker-calendar-dark' : ''}
         popperPlacement="bottom-start"
         placeholderText="Select date range"
       />
+      <style jsx global>{`
+        .react-datepicker-dark {
+          background-color: #1f2937 !important;
+          color: #f3f4f6 !important;
+          border-color: #374151 !important;
+        }
+        .react-datepicker-dark .react-datepicker__header {
+          background-color: #111827 !important;
+          border-bottom: 1px solid #374151 !important;
+        }
+        .react-datepicker-dark .react-datepicker__day,
+        .react-datepicker-dark .react-datepicker__day-name {
+          color: #f3f4f6 !important;
+        }
+        .react-datepicker-dark .react-datepicker__day--selected,
+        .react-datepicker-dark .react-datepicker__day--in-selecting-range,
+        .react-datepicker-dark .react-datepicker__day--in-range {
+          background-color: #6366f1 !important;
+          color: #fff !important;
+        }
+        .react-datepicker-dark .react-datepicker__current-month {
+          color: #f3f4f6 !important;
+        }
+        .react-datepicker-dark .react-datepicker__navigation {
+          filter: invert(1);
+        }
+        .react-datepicker-calendar-dark {
+          background-color: #1f2937 !important;
+        }
+      `}</style>
     </div>
   );
 };

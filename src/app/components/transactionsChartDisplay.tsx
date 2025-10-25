@@ -1,19 +1,19 @@
 "use client";
-
-import React from "react";
-
+import React, { useRef, useState } from "react";
+import MonthTransactionsModal from "./common/MonthTransactionsModal";
 import { useDarkMode } from "../context/darkModeContext";
 import { useTransactions } from "../context/transactionsContext";
 import { getMonthName } from "../helpers/date-helpers";
 import BarChart from "./charts/barChart";
 import PieChart from "./charts/pieChart";
-import DateRangePicker from "./common/datePicker";
 
 export const TransactionsChartDisplay = () => {
     const { state } = useTransactions();
     const { darkMode } = useDarkMode();
 
     const [transactionsInDateRange, setTransactionsInDateRange] = React.useState(state.transactions);
+    const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+    const barClickType = useRef<"income" | "expenses">("income");
 
     React.useEffect(() => {
         if (state.dateRange.startDate && state.dateRange.endDate) {
@@ -23,6 +23,13 @@ export const TransactionsChartDisplay = () => {
             setTransactionsInDateRange(filtered);
         }
     }, [state.dateRange, state.transactions]);
+
+    const getMonthFromDate = (date: Date) => getMonthName(date.getMonth());
+
+    const handleMonthBarClick = (month: string, type: "income" | "expenses") => {
+        barClickType.current = type;
+        setSelectedMonth(month);
+    };
 
     const mapIncomeVsExpensesByMonthChart = () => {
         // Group transactions by month, summing income and expenses
@@ -45,10 +52,16 @@ export const TransactionsChartDisplay = () => {
         const incomeData = months.map((month) => ({
             name: month,
             y: monthlyTotals[month].income,
+            events: {
+                click: () => handleMonthBarClick(month, "income")
+            }
         }));
         const expensesData = months.map((month) => ({
             name: month,
             y: monthlyTotals[month].expenses,
+            events: {
+                click: () => handleMonthBarClick(month, "expenses")
+            }
         }));
 
         return [
@@ -116,6 +129,8 @@ export const TransactionsChartDisplay = () => {
 
     const mapMoneySpentToTypeChart = () => {
         const categoryTotals = transactionsInDateRange.reduce((acc, curr) => {
+            // Exclude 'Income' category
+            if (curr.Category === "Income") return acc;
             if (!acc[curr.Category]) {
                 acc[curr.Category] = 0;
             }
@@ -137,6 +152,8 @@ export const TransactionsChartDisplay = () => {
 
     const mapMoneySpentToMonthChart = () => {
         const monthlyTotals = transactionsInDateRange.reduce((acc, curr) => {
+            // Exclude 'Income' category
+            if (curr.Category === "Income") return acc;
             const date = new Date(curr.TransactionDate);
             const month = date.getMonth();
             const monthName = getMonthName(month);
@@ -169,6 +186,11 @@ export const TransactionsChartDisplay = () => {
           `Transactions: ${this.y}`;
     }
 
+    // Filter transactions for selected month
+    const transactionsForSelectedMonth = selectedMonth
+        ? transactionsInDateRange.filter(t => getMonthFromDate(t.TransactionDate) === selectedMonth)
+        : [];
+
     return (
         <div className="flex flex-col">
             <div className="flex flex-row gap-8 mb-8">
@@ -178,12 +200,6 @@ export const TransactionsChartDisplay = () => {
                     isDarkMode={darkMode} 
                     legendEnabled={true}
                 />
-                <div className={`p-6 ml-auto ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
-                    <h1 className="text-xl mb-4">Select Date Range</h1>
-                    <DateRangePicker
-                        darkMode={darkMode}
-                    />
-                </div>
             </div>
             <div className="flex flex-row gap-8">
                 <BarChart 
@@ -207,6 +223,14 @@ export const TransactionsChartDisplay = () => {
                     <BarChart series={[mapMoneySpentToMonthChart()]} title="Money Spent by Month" isDarkMode={darkMode} />
                 </div>
             </div>
+
+            {/* Modal for transactions in selected month */}
+            <MonthTransactionsModal
+                month={selectedMonth}
+                type={barClickType.current}
+                transactions={transactionsForSelectedMonth}
+                onClose={() => setSelectedMonth(null)}
+            />
         </div>
     )
 }

@@ -1,25 +1,35 @@
-type Category =
-  | "Food & drink"
-  | "Health & wellness"
-  | "Gifts & donations"
-  | "Automotive"
-  | "Gas"
-  | "Travel"
-  | "Shopping"
-  | "Groceries"
-  | "Home"
-  | "Entertainment"
-  | "Bills & Utilities"
-  | "Uncategorized";
+
+export const CATEGORY_LIST = [
+  "Food & drink",
+  "Health & wellness",
+  "Gifts & donations",
+  "Automotive",
+  "Gas",
+  "Travel",
+  "Shopping",
+  "Groceries",
+  "Home",
+  "Entertainment",
+  "Bills & Utilities",
+  "Income",
+  "Uncategorized",
+] as const;
+
+export type Category = typeof CATEGORY_LIST[number];
 
 interface Transaction {
   Description: string;
   Amount: string;
 }
 
+
 export function categorizeTransaction(transaction: Transaction): Category {
   const desc = transaction.Description.toLowerCase();
   const amount = transaction.Amount;
+
+  if (Number(amount) > 0) {
+    return "Income";
+  }
 
   const keywordMap: { [key in Category]?: string[] } = {
     "Bills & Utilities": ["utility", "electric", "water", "internet", "cable", "comcast", "verizon", "t-mobile", "bill", "energy", "penstock", "Bear Granville", "insurance"],

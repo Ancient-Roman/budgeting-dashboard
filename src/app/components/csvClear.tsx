@@ -13,10 +13,14 @@ export const CsvClear = () => {
     }
 
     return (
-        <div className="cursor-pointer border border-white rounded p-4">
-          <button className="cursor-pointer" type="button" onClick={handleButtonClick}>
+        <div>
+          <button
+            type="button"
+            onClick={handleButtonClick}
+            className="px-6 py-3 rounded-xl font-extrabold tracking-tight shadow transition-all duration-200 border-none outline-none bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 text-white dark:from-blue-600 dark:via-purple-700 dark:to-pink-600 hover:brightness-110 hover:saturate-150 focus:brightness-110 focus:saturate-150"
+          >
             Clear All Uploads
           </button>
         </div>
-      );
+  );
 }

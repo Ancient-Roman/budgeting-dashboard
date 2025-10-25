@@ -9,7 +9,13 @@ export const lightTheme: Highcharts.Options = {
   },
   title: {
     style: {
-      color: '#000000',
+      color: '#6d28d9', // purple-700
+      fontWeight: 'bold',
+      fontSize: '2rem',
+      textShadow: '0 2px 8px rgba(109,40,217,0.15)',
+      background: 'linear-gradient(90deg, #38bdf8 0%, #a78bfa 50%, #f472b6 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
     },
   },
   xAxis: {
@@ -50,7 +56,13 @@ export const darkTheme: Highcharts.Options = {
   },
   title: {
     style: {
-      color: '#e2e8f0',
+      color: '#a78bfa', // purple-400
+      fontWeight: 'bold',
+      fontSize: '2rem',
+      textShadow: '0 2px 8px rgba(167,139,250,0.25)',
+      background: 'linear-gradient(90deg, #38bdf8 0%, #a78bfa 50%, #f472b6 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
     },
   },
   xAxis: {

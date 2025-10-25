@@ -14,7 +14,14 @@ export const TransactionsListDisplay = () => {
         });
     }
 
+    // Convert CsvTransactionDetail[] to ParsedCsvTransaction[] for DataTable
+    const filteredRows: ParsedCsvTransaction[] = state.filteredTransactions.map(t => ({
+        ...t,
+        Amount: t.Amount.toString(),
+        TransactionDate: t.TransactionDate instanceof Date ? t.TransactionDate.toISOString().slice(0, 10) : t.TransactionDate,
+        PostDate: t.PostDate instanceof Date ? t.PostDate.toISOString().slice(0, 10) : t.PostDate,
+    }));
     return (
-        <DataTable data={state.transactionStrings} onDelete={deleteTransaction} hiddenColumns={["Id", "Memo"]}/>
+        <DataTable data={filteredRows} onDelete={deleteTransaction} hiddenColumns={["Id", "Memo"]}/>
     );
 }

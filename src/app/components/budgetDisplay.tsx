@@ -1,12 +1,8 @@
 "use client";
-
 import BarChart from "./charts/barChart";
-
 import * as React from "react";
 import { useDarkMode } from "../context/darkModeContext";
 import { useTransactions } from "../context/transactionsContext";
-import DateRangePicker from "./common/datePicker";
-
 /**
  * Displays a summary of the user's budget including total income, total expenses, net savings,
  * and a breakdown of expenses by category. Also includes a date range picker to filter the data.
@@ -132,8 +128,7 @@ export const BudgetDisplay = () => {
             " rounded-lg p-6 shadow w-full max-w-xl mx-auto"
         }>
             <div className="mb-6 flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Budget Overview</h2>
-                <DateRangePicker darkMode={darkMode} />
+                <h2 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg mb-2">Budget Overview</h2>
             </div>
             <div className="mb-2 flex justify-between">
                 <span>Total Income:</span>
@@ -163,7 +158,7 @@ export const BudgetDisplay = () => {
                 <span className="text-sm mt-1 block">{percentUsed.toFixed(1)}% of ${budgetTarget.toLocaleString()} target</span>
             </div>
             <div>
-                <h3 className="text-lg font-semibold mb-2">Top Spending Categories</h3>
+                <h3 className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg mb-2">Top Spending Categories</h3>
                 <ul>
                     {topCategories.map(([cat, amt]) => (
                         <li key={cat} className="flex justify-between mb-1">
@@ -174,7 +169,7 @@ export const BudgetDisplay = () => {
                 </ul>
             </div>
             <div className="mt-8">
-                <h3 className="text-lg font-semibold mb-2">Monthly Net Trend</h3>
+                <h3 className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg mb-2">Monthly Net Trend</h3>
                 <BarChart
                     title="Monthly Net"
                     series={monthlySeries}
@@ -182,7 +177,7 @@ export const BudgetDisplay = () => {
                 />
             </div>
             <div className="mt-8">
-                <h3 className="text-lg font-semibold mb-2">Weekly Net Trend</h3>
+                <h3 className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg mb-2">Weekly Net Trend</h3>
                 <BarChart
                     title="Weekly Net"
                     series={weeklySeries}
