@@ -6,21 +6,22 @@ import { useTransactions } from "../context/transactionsContext";
 import { getMonthName } from "../helpers/date-helpers";
 import BarChart from "./charts/barChart";
 import PieChart from "./charts/pieChart";
+import { CsvTransactionDetail } from "../types/csvParse";
 
 export const TransactionsChartDisplay = () => {
     const { state } = useTransactions();
     const { darkMode } = useDarkMode();
 
     const [transactionsInDateRange, setTransactionsInDateRange] = React.useState(state.transactions);
-    const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+    // selectedMonth removed (not used elsewhere)
     const barClickType = useRef<"income" | "expenses">("income");
 
     // State for generic modal
     const [modalOpen, setModalOpen] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
-    const [modalData, setModalData] = useState<any[]>([]);
-    const [modalColumns, setModalColumns] = useState<any[]>([]);
-    const [modalSortKey, setModalSortKey] = useState<string | undefined>(undefined);
+    const [modalData, setModalData] = useState<CsvTransactionDetail[]>([]);
+    const [modalColumns, setModalColumns] = useState<GenericChartModalColumn<CsvTransactionDetail>[]>([]);
+    const [modalSortKey, setModalSortKey] = useState<keyof CsvTransactionDetail | undefined>(undefined);
     const [modalSortDirection, setModalSortDirection] = useState<'asc' | 'desc'>('asc');
 
     React.useEffect(() => {
@@ -36,16 +37,15 @@ export const TransactionsChartDisplay = () => {
 
         const handleMonthBarClick = (month: string, type: "income" | "expenses") => {
                 barClickType.current = type;
-                setSelectedMonth(month);
                 // For backward compatibility, also open generic modal
                 const filtered = transactionsInDateRange.filter(t => getMonthFromDate(t.TransactionDate) === month && (type === 'income' ? t.Amount > 0 : t.Amount < 0));
                 setModalTitle(`Transactions for ${month} (${type})`);
                 setModalData(filtered);
                 setModalColumns([
-                    { key: 'TransactionDate', label: 'Date', render: (v: Date) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                    { key: 'TransactionDate', label: 'Date', render: (v: unknown) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
                     { key: 'Category', label: 'Category', sortable: true },
-                    { key: 'Amount', label: 'Amount', render: (v: number, row: any) => (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString(), sortable: true },
-                    { key: 'Description', label: 'Description', render: (v: string) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                    { key: 'Amount', label: 'Amount', render: (_v: unknown, row?: CsvTransactionDetail) => row ? (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString() : '', sortable: true },
+                    { key: 'Description', label: 'Description', render: (v: unknown) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
                 ]);
                 setModalSortKey('Amount');
                 setModalSortDirection(type === 'income' ? 'desc' : 'asc');
@@ -58,10 +58,10 @@ export const TransactionsChartDisplay = () => {
                 setModalTitle(`Transactions for Category: ${category}`);
                 setModalData(filtered);
                 setModalColumns([
-                    { key: 'TransactionDate', label: 'Date', render: (v: Date) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                    { key: 'TransactionDate', label: 'Date', render: (v: unknown) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
                     { key: 'Category', label: 'Category', sortable: true },
-                    { key: 'Amount', label: 'Amount', render: (v: number, row: any) => (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString(), sortable: true },
-                    { key: 'Description', label: 'Description', render: (v: string) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                    { key: 'Amount', label: 'Amount', render: (_v: unknown, row?: CsvTransactionDetail) => row ? (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString() : '', sortable: true },
+                    { key: 'Description', label: 'Description', render: (v: unknown) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
                 ]);
                 setModalSortKey('Amount');
                 setModalSortDirection('desc');
@@ -73,10 +73,10 @@ export const TransactionsChartDisplay = () => {
                 setModalTitle(`Transactions for Month: ${month}`);
                 setModalData(filtered);
                 setModalColumns([
-                    { key: 'TransactionDate', label: 'Date', render: (v: Date) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                    { key: 'TransactionDate', label: 'Date', render: (v: unknown) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
                     { key: 'Category', label: 'Category', sortable: true },
-                    { key: 'Amount', label: 'Amount', render: (v: number, row: any) => (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString(), sortable: true },
-                    { key: 'Description', label: 'Description', render: (v: string) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                    { key: 'Amount', label: 'Amount', render: (_v: unknown, row?: CsvTransactionDetail) => row ? (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString() : '', sortable: true },
+                    { key: 'Description', label: 'Description', render: (v: unknown) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
                 ]);
                 setModalSortKey('Amount');
                 setModalSortDirection('desc');
@@ -88,10 +88,10 @@ export const TransactionsChartDisplay = () => {
                 setModalTitle(`Money Spent for Category: ${category}`);
                 setModalData(filtered);
                 setModalColumns([
-                    { key: 'TransactionDate', label: 'Date', render: (v: Date) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                    { key: 'TransactionDate', label: 'Date', render: (v: unknown) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
                     { key: 'Category', label: 'Category', sortable: true },
-                    { key: 'Amount', label: 'Amount', render: (v: number, row: any) => (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString(), sortable: true },
-                    { key: 'Description', label: 'Description', render: (v: string) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                    { key: 'Amount', label: 'Amount', render: (_v: unknown, row?: CsvTransactionDetail) => row ? (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString() : '', sortable: true },
+                    { key: 'Description', label: 'Description', render: (v: unknown) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
                 ]);
                 setModalSortKey('Amount');
                 setModalSortDirection('desc');
@@ -103,10 +103,10 @@ export const TransactionsChartDisplay = () => {
                 setModalTitle(`Money Spent for Month: ${month}`);
                 setModalData(filtered);
                 setModalColumns([
-                    { key: 'TransactionDate', label: 'Date', render: (v: Date) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                    { key: 'TransactionDate', label: 'Date', render: (v: unknown) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
                     { key: 'Category', label: 'Category', sortable: true },
-                    { key: 'Amount', label: 'Amount', render: (v: number, row: any) => (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString(), sortable: true },
-                    { key: 'Description', label: 'Description', render: (v: string) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                    { key: 'Amount', label: 'Amount', render: (_v: unknown, row?: CsvTransactionDetail) => row ? (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString() : '', sortable: true },
+                    { key: 'Description', label: 'Description', render: (v: unknown) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
                 ]);
                 setModalSortKey('Amount');
                 setModalSortDirection('desc');
@@ -224,7 +224,7 @@ export const TransactionsChartDisplay = () => {
             return acc;
         }, {} as Record<string, number>);
 
-        const data: { name: string; y: number; events?: any }[] = Object.entries(categoryTotals).map(
+    const data: { name: string; y: number; events?: { click: () => void } }[] = Object.entries(categoryTotals).map(
             ([category, total]) => ({
                 name: category,
                 y: total,
@@ -251,7 +251,7 @@ export const TransactionsChartDisplay = () => {
             return acc;
         }, {} as Record<string, number>);
         
-        const data: { name: string; y: number; events?: any }[] = Object.entries(monthlyTotals).map(
+    const data: { name: string; y: number; events?: { click: () => void } }[] = Object.entries(monthlyTotals).map(
             ([month, total]) => ({
                 name: month,
                 y: total,
@@ -272,10 +272,7 @@ export const TransactionsChartDisplay = () => {
           `Transactions: ${this.y}`;
     }
 
-    // Filter transactions for selected month
-    const transactionsForSelectedMonth = selectedMonth
-        ? transactionsInDateRange.filter(t => getMonthFromDate(t.TransactionDate) === selectedMonth)
-        : [];
+    // (transactionsForSelectedMonth was unused; filtering is done when opening modals)
 
     return (
         <div className="flex flex-col">

@@ -1,12 +1,14 @@
 import { convertCsvToDetail } from "../helpers/csvHelpers";
 import { filterTransactions } from "../helpers/date-helpers";
 import { CsvTransactionDetail, ParsedCsvTransaction } from "../types/csvParse";
+import { CategoryBudgetItem } from "../helpers/budgetHelpers";
 import { DateRange } from "../types/date";
 
 export const initialState: TransactionsState = {
     transactionStrings: [],
     transactions: [],
     filteredTransactions: [],
+    categoryBudgets: {},
     dateRange: {
         startDate: new Date(),
         endDate: new Date(),
@@ -18,6 +20,7 @@ export type TransactionsState = {
     transactions: CsvTransactionDetail[]; 
     filteredTransactions: CsvTransactionDetail[];
     dateRange: DateRange;
+    categoryBudgets?: Record<string, CategoryBudgetItem[]>;
 };
   
 export type Action =
@@ -25,7 +28,8 @@ export type Action =
     | { type: 'deleteTransaction'; payload: number }
     | { type: 'clearTransactions'; payload: undefined }
     | { type: 'setDateRange'; payload: DateRange }
-    | { type: 'setTransactionCategory'; payload: {id: number, category: string} };
+    | { type: 'setTransactionCategory'; payload: {id: number, category: string} }
+    | { type: 'setCategoryBudgets'; payload: { monthKey: string; budgets: CategoryBudgetItem[] } };
 
 export function reducer(state: TransactionsState, action: Action): TransactionsState {
   switch (action.type) {
@@ -58,6 +62,14 @@ export function reducer(state: TransactionsState, action: Action): TransactionsS
             ...state,
             dateRange: action.payload,
             filteredTransactions: filterTransactions(state.transactions, action.payload),
+        }
+    case "setCategoryBudgets":
+        return {
+            ...state,
+            categoryBudgets: {
+                ...(state.categoryBudgets || {}),
+                [action.payload.monthKey]: action.payload.budgets,
+            }
         }
     case "setTransactionCategory":
         return {

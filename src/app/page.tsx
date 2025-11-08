@@ -10,6 +10,7 @@ import React from "react";
 import { DarkModeToggle } from "./components/common/darkModeToggle";
 import { DarkModeProviderWrapper } from "./components/client-wrappers/darkModeProviderWrapper";
 import { BudgetDisplay } from "./components/budgetDisplay";
+import CategoryBudget from "./components/categoryBudget";
 
 export default function Home() {
   const tabs: Tab[] = [
@@ -27,6 +28,11 @@ export default function Home() {
       id: "3",
       label: "Budget",
       content: <BudgetDisplay />,
+    },
+    {
+      id: "4",
+      label: "Category Budgets",
+      content: <CategoryBudget />,
     }
   ];
 
