@@ -32,7 +32,7 @@ export function categorizeTransaction(transaction: Transaction): Category {
   }
 
   const keywordMap: { [key in Category]?: string[] } = {
-    "Bills & Utilities": ["utility", "electric", "water", "internet", "cable", "comcast", "verizon", "t-mobile", "bill", "energy", "penstock", "Bear Granville", "insurance"],
+    "Bills & Utilities": ["utility", "electric", "water", "internet", "cable", "comcast", "verizon", "t-mobile", "bill", "energy", "insurance", "rent", "mortgage"],
     "Food & drink": ["restaurant", "coffee", "cafe", "bar", "mcdonald", "burger", "pizza", "kfc", "dunkin", "starbucks", "chipotle"],
     "Health & wellness": ["pharmacy", "drugstore", "doctor", "dentist", "clinic", "hospital", "vision", "chiropractor"],
     "Gifts & donations": ["donation", "gift", "charity", "nonprofit", "church"],

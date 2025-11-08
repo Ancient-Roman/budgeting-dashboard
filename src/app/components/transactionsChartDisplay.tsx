@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState } from "react";
-import MonthTransactionsModal from "./common/MonthTransactionsModal";
+import GenericChartModal, { GenericChartModalColumn } from "./common/MonthTransactionsModal";
 import { useDarkMode } from "../context/darkModeContext";
 import { useTransactions } from "../context/transactionsContext";
 import { getMonthName } from "../helpers/date-helpers";
@@ -15,6 +15,14 @@ export const TransactionsChartDisplay = () => {
     const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
     const barClickType = useRef<"income" | "expenses">("income");
 
+    // State for generic modal
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalData, setModalData] = useState<any[]>([]);
+    const [modalColumns, setModalColumns] = useState<any[]>([]);
+    const [modalSortKey, setModalSortKey] = useState<string | undefined>(undefined);
+    const [modalSortDirection, setModalSortDirection] = useState<'asc' | 'desc'>('asc');
+
     React.useEffect(() => {
         if (state.dateRange.startDate && state.dateRange.endDate) {
             const filtered = state.transactions.filter(t => {
@@ -26,10 +34,84 @@ export const TransactionsChartDisplay = () => {
 
     const getMonthFromDate = (date: Date) => getMonthName(date.getMonth());
 
-    const handleMonthBarClick = (month: string, type: "income" | "expenses") => {
-        barClickType.current = type;
-        setSelectedMonth(month);
-    };
+        const handleMonthBarClick = (month: string, type: "income" | "expenses") => {
+                barClickType.current = type;
+                setSelectedMonth(month);
+                // For backward compatibility, also open generic modal
+                const filtered = transactionsInDateRange.filter(t => getMonthFromDate(t.TransactionDate) === month && (type === 'income' ? t.Amount > 0 : t.Amount < 0));
+                setModalTitle(`Transactions for ${month} (${type})`);
+                setModalData(filtered);
+                setModalColumns([
+                    { key: 'TransactionDate', label: 'Date', render: (v: Date) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                    { key: 'Category', label: 'Category', sortable: true },
+                    { key: 'Amount', label: 'Amount', render: (v: number, row: any) => (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString(), sortable: true },
+                    { key: 'Description', label: 'Description', render: (v: string) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                ]);
+                setModalSortKey('Amount');
+                setModalSortDirection(type === 'income' ? 'desc' : 'asc');
+                setModalOpen(true);
+        };
+
+        // Handlers for other charts
+        const handleCategoryBarClick = (category: string) => {
+                const filtered = transactionsInDateRange.filter(t => t.Category === category);
+                setModalTitle(`Transactions for Category: ${category}`);
+                setModalData(filtered);
+                setModalColumns([
+                    { key: 'TransactionDate', label: 'Date', render: (v: Date) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                    { key: 'Category', label: 'Category', sortable: true },
+                    { key: 'Amount', label: 'Amount', render: (v: number, row: any) => (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString(), sortable: true },
+                    { key: 'Description', label: 'Description', render: (v: string) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                ]);
+                setModalSortKey('Amount');
+                setModalSortDirection('desc');
+                setModalOpen(true);
+        };
+
+        const handleMonthCountBarClick = (month: string) => {
+                const filtered = transactionsInDateRange.filter(t => getMonthFromDate(t.TransactionDate) === month);
+                setModalTitle(`Transactions for Month: ${month}`);
+                setModalData(filtered);
+                setModalColumns([
+                    { key: 'TransactionDate', label: 'Date', render: (v: Date) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                    { key: 'Category', label: 'Category', sortable: true },
+                    { key: 'Amount', label: 'Amount', render: (v: number, row: any) => (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString(), sortable: true },
+                    { key: 'Description', label: 'Description', render: (v: string) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                ]);
+                setModalSortKey('Amount');
+                setModalSortDirection('desc');
+                setModalOpen(true);
+        };
+
+        const handleMoneySpentCategoryClick = (category: string) => {
+                const filtered = transactionsInDateRange.filter(t => t.Category === category && t.Category !== 'Income');
+                setModalTitle(`Money Spent for Category: ${category}`);
+                setModalData(filtered);
+                setModalColumns([
+                    { key: 'TransactionDate', label: 'Date', render: (v: Date) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                    { key: 'Category', label: 'Category', sortable: true },
+                    { key: 'Amount', label: 'Amount', render: (v: number, row: any) => (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString(), sortable: true },
+                    { key: 'Description', label: 'Description', render: (v: string) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                ]);
+                setModalSortKey('Amount');
+                setModalSortDirection('desc');
+                setModalOpen(true);
+        };
+
+        const handleMoneySpentMonthClick = (month: string) => {
+                const filtered = transactionsInDateRange.filter(t => getMonthFromDate(t.TransactionDate) === month && t.Category !== 'Income');
+                setModalTitle(`Money Spent for Month: ${month}`);
+                setModalData(filtered);
+                setModalColumns([
+                    { key: 'TransactionDate', label: 'Date', render: (v: Date) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                    { key: 'Category', label: 'Category', sortable: true },
+                    { key: 'Amount', label: 'Amount', render: (v: number, row: any) => (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString(), sortable: true },
+                    { key: 'Description', label: 'Description', render: (v: string) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                ]);
+                setModalSortKey('Amount');
+                setModalSortDirection('desc');
+                setModalOpen(true);
+        };
 
     const mapIncomeVsExpensesByMonthChart = () => {
         // Group transactions by month, summing income and expenses
@@ -103,10 +185,12 @@ export const TransactionsChartDisplay = () => {
     }
 
     const mapTransactionsToTypeChart = () => {
-        const data = countStringArray(transactionsInDateRange.map(t => t.Category));
-
-        console.log(data);
-
+        const data = countStringArray(transactionsInDateRange.map(t => t.Category)).map(d => ({
+            ...d,
+            events: {
+                click: () => handleCategoryBarClick(d.name)
+            }
+        }));
         return {
             type: "column",
             name: "Transactions by Category",
@@ -116,10 +200,12 @@ export const TransactionsChartDisplay = () => {
 
     const mapTransactionsToMonthChart = () => {
         const monthCount = transactionsInDateRange.map(t => t.TransactionDate.getMonth());
-        const data = countByMonth(monthCount);
-
-        console.log(data);
-
+        const data = countByMonth(monthCount).map(d => ({
+            ...d,
+            events: {
+                click: () => handleMonthCountBarClick(d.name)
+            }
+        }));
         return {
             type: "column",
             name: "Transactions by Month",
@@ -138,15 +224,15 @@ export const TransactionsChartDisplay = () => {
             return acc;
         }, {} as Record<string, number>);
 
-        const data: { name: string; y: number }[] = Object.entries(categoryTotals).map(
+        const data: { name: string; y: number; events?: any }[] = Object.entries(categoryTotals).map(
             ([category, total]) => ({
                 name: category,
                 y: total,
+                events: {
+                    click: () => handleMoneySpentCategoryClick(category)
+                }
             })
         );
-
-        console.log(data);
-
         return data;
     }
 
@@ -165,15 +251,15 @@ export const TransactionsChartDisplay = () => {
             return acc;
         }, {} as Record<string, number>);
         
-        const data: { name: string; y: number }[] = Object.entries(monthlyTotals).map(
+        const data: { name: string; y: number; events?: any }[] = Object.entries(monthlyTotals).map(
             ([month, total]) => ({
                 name: month,
                 y: total,
+                events: {
+                    click: () => handleMoneySpentMonthClick(month)
+                }
             })
         );
-
-        console.log(data);
-
         return {
             type: "column",
             name: "Money Spent",
@@ -217,19 +303,31 @@ export const TransactionsChartDisplay = () => {
             </div>
             <div className="flex flex-row gap-8">
                 <div className="flex-1">
-                    <PieChart data={mapMoneySpentToTypeChart()} title="Money Spent by Category" isDarkMode={darkMode} />
+                    <PieChart 
+                        data={mapMoneySpentToTypeChart().map(d => ({
+                            ...d,
+                            events: {
+                                click: () => handleMoneySpentCategoryClick(d.name)
+                            }
+                        }))} 
+                        title="Money Spent by Category" 
+                        isDarkMode={darkMode} 
+                    />
                 </div>
                 <div className="flex-1">
                     <BarChart series={[mapMoneySpentToMonthChart()]} title="Money Spent by Month" isDarkMode={darkMode} />
                 </div>
             </div>
 
-            {/* Modal for transactions in selected month */}
-            <MonthTransactionsModal
-                month={selectedMonth}
-                type={barClickType.current}
-                transactions={transactionsForSelectedMonth}
-                onClose={() => setSelectedMonth(null)}
+            {/* Generic modal for all chart drilldowns */}
+            <GenericChartModal
+                open={modalOpen}
+                title={modalTitle}
+                data={modalData}
+                columns={modalColumns}
+                onClose={() => setModalOpen(false)}
+                initialSortKey={modalSortKey}
+                initialSortDirection={modalSortDirection}
             />
         </div>
     )

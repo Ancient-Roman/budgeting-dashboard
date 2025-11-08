@@ -1,74 +1,61 @@
+
 import React, { useState } from "react";
 
-interface MonthTransactionsModalProps {
-  month: string | null;
-  type: "income" | "expenses";
-  transactions: Array<{
-    TransactionDate: Date;
-    Category: string;
-    Amount: number;
-    Description?: string;
-  }>;
-  onClose: () => void;
+export interface GenericChartModalColumn<T> {
+  key: keyof T;
+  label: string;
+  render?: (value: unknown, row: T) => React.ReactNode;
+  sortable?: boolean;
 }
 
-const MonthTransactionsModal: React.FC<MonthTransactionsModalProps> = ({ month, transactions, onClose, type }) => {
-  const [sortKey, setSortKey] = useState<'date' | 'category' | 'amount' | 'description'>('amount');
+interface GenericChartModalProps<T> {
+  open: boolean;
+  title: string;
+  data: T[];
+  columns: GenericChartModalColumn<T>[];
+  onClose: () => void;
+  initialSortKey?: keyof T;
+  initialSortDirection?: 'asc' | 'desc';
+}
 
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+function GenericChartModal<T extends Record<string, unknown>>({
+  open,
+  title,
+  data,
+  columns,
+  onClose,
+  initialSortKey,
+  initialSortDirection = 'asc',
+}: GenericChartModalProps<T>) {
+  const [sortKey, setSortKey] = useState<keyof T | undefined>(initialSortKey);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(initialSortDirection);
 
   React.useEffect(() => {
-    if (sortKey === 'amount') {
-      setSortDirection(type === 'income' ? 'desc' : 'asc');
-    }
-  }, [type, sortKey]);
+    setSortKey(initialSortKey);
+    setSortDirection(initialSortDirection);
+  }, [initialSortKey, initialSortDirection, open]);
 
-  if (!month) return null;
 
-  // Sort transactions
-  const sortedTransactions = [...transactions].sort((a, b) => {
-    let aValue, bValue;
-    switch (sortKey) {
-      case 'date':
-        aValue = a.TransactionDate.getTime();
-        bValue = b.TransactionDate.getTime();
-        break;
-      case 'category':
-        aValue = a.Category || '';
-        bValue = b.Category || '';
-        break;
-      case 'amount':
-        aValue = a.Amount;
-        bValue = b.Amount;
-        break;
-      case 'description':
-        aValue = a.Description || '';
-        bValue = b.Description || '';
-        break;
-      default:
-        aValue = '';
-        bValue = '';
-    }
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
+  const sortedData = React.useMemo(() => {
+    if (!sortKey) return data;
+    return [...data].sort((a, b) => {
+      const aValue = a[sortKey];
+      const bValue = b[sortKey];
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [data, sortKey, sortDirection]);
 
-  const handleSort = (key: typeof sortKey) => {
+  if (!open) return null;
+
+  const handleSort = (key: keyof T) => {
     if (sortKey === key) {
-      // If sorting by amount, use type to determine direction
-      if (key === 'amount') {
-        setSortDirection(type === 'income' ? 'desc' : 'asc');
-      } else {
-        setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-      }
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortKey(key);
-      if (key === 'amount') {
-        setSortDirection(type === 'income' ? 'desc' : 'asc');
-      } else {
-        setSortDirection('asc');
-      }
+      setSortDirection('asc');
     }
   };
 
@@ -78,7 +65,7 @@ const MonthTransactionsModal: React.FC<MonthTransactionsModalProps> = ({ month, 
       onClick={onClose}
     >
       <div
-        className={`bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-lg shadow-lg relative`}
+        className="bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-2xl shadow-lg relative"
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -87,50 +74,42 @@ const MonthTransactionsModal: React.FC<MonthTransactionsModalProps> = ({ month, 
         >
           &times;
         </button>
-  <h2 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg mb-4">Transactions for {month}</h2>
-        {transactions.length === 0 ? (
-          <div className="text-gray-500">No transactions for this month.</div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-300 dark:border-gray-700">
-                <th className="px-2 py-1 cursor-pointer" onClick={() => handleSort('date')}>
-                  Date {sortKey === 'date' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </th>
-                <th className="px-2 py-1 cursor-pointer" onClick={() => handleSort('category')}>
-                  Category {sortKey === 'category' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </th>
-                <th className="px-2 py-1 cursor-pointer" onClick={() => handleSort('amount')}>
-                  Amount {sortKey === 'amount' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </th>
-                <th className="px-2 py-1 cursor-pointer" onClick={() => handleSort('description')}>
-                  Description {sortKey === 'description' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedTransactions.map((t, idx) => (
-                <tr key={idx} className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="px-2 py-1">{t.TransactionDate.toLocaleDateString()}</td>
-                  <td className="px-2 py-1">{t.Category}</td>
-                  <td className={"px-2 py-1 " + (t.Amount >= 0 ? "text-green-500" : "text-red-500") }>
-                    {t.Amount >= 0 ? '+' : '-'}${Math.abs(t.Amount).toLocaleString()}
-                  </td>
-                  <td
-                    className="px-2 py-1 max-w-[120px] truncate cursor-pointer"
-                    style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                    title={t.Description}
-                  >
-                    {t.Description}
-                  </td>
+        <h2 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg mb-4">{title}</h2>
+        <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+          {sortedData.length === 0 ? (
+            <div className="text-gray-500">No data to display.</div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-300 dark:border-gray-700">
+                  {columns.map((col) => (
+                    <th
+                      key={String(col.key)}
+                      className={"px-2 py-1 " + (col.sortable !== false ? "cursor-pointer" : "")}
+                      onClick={col.sortable !== false ? () => handleSort(col.key) : undefined}
+                    >
+                      {col.label} {sortKey === col.key && (sortDirection === 'asc' ? '▲' : '▼')}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {sortedData.map((row, idx) => (
+                  <tr key={idx} className="border-b border-gray-200 dark:border-gray-700">
+                    {columns.map((col) => (
+                      <td key={String(col.key)} className="px-2 py-1">
+                        {col.render ? col.render(row[col.key], row) : String(row[col.key])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );
-};
+}
 
-export default MonthTransactionsModal;
+export default GenericChartModal;
