@@ -10,7 +10,8 @@ const MonthYearPicker: React.FC<Props> = ({ monthKey, onChange }) => {
   const [y, m] = monthKey.split('-');
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const currentYear = new Date().getFullYear();
-  const years = Array.from({length: 5}, (_,i) => currentYear - 2 + i);
+  // Show a small window of years ending at currentYear (currentYear-2 .. currentYear)
+  const years = Array.from({length: 3}, (_,i) => currentYear - 2 + i);
 
   return (
     <div className="flex items-center gap-2">
