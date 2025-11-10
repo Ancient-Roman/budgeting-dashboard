@@ -11,11 +11,12 @@ interface Props {
   pctOfMonth: number;
   over: boolean;
   onChangeAmount: (newAmount: number) => void;
+  onClick?: () => void;
 }
 
-const CategoryBudgetCard: React.FC<Props> = ({ item, spent, isCurrent, pctRelativeToTime, pctOfMonth, over, onChangeAmount }) => {
+const CategoryBudgetCard: React.FC<Props> = ({ item, spent, isCurrent, pctRelativeToTime, pctOfMonth, over, onChangeAmount, onClick }) => {
   return (
-    <div className="p-3 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700">
+    <div onClick={onClick} className={`p-3 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 ${onClick ? 'hover:shadow-lg hover:-translate-y-0.5 transition-transform cursor-pointer' : ''}`}>
       <div className="flex items-center justify-between">
         <div className="font-medium"><span className="mr-2">{getEmojiForCategory(item.category)}</span>{item.category}</div>
         <div className="text-sm text-gray-600 dark:text-gray-300">Spent ${spent.toFixed(2)} / Budget ${item.amount.toFixed(2)}</div>
@@ -32,7 +33,7 @@ const CategoryBudgetCard: React.FC<Props> = ({ item, spent, isCurrent, pctRelati
             <span>Of month: <span className={pctOfMonth > 1 ? 'text-red-500' : 'text-green-500'}>{(pctOfMonth*100).toFixed(1)}%</span></span>
           </div>
           <div className="flex items-center gap-2">
-            <input className="w-24 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-1 rounded" value={item.amount} onChange={e => onChangeAmount(Number(e.target.value || 0))} />
+            <input onClick={e => e.stopPropagation()} className="w-24 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-1 rounded" value={item.amount} onChange={e => onChangeAmount(Number(e.target.value || 0))} />
           </div>
         </div>
       </div>

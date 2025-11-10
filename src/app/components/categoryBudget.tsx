@@ -5,6 +5,7 @@ import { parseBudgetCsv, exportBudgetCsv, generateBudgetFromAverages, CategoryBu
 import { CsvTransactionDetail } from '../types/csvParse';
 import MonthYearPicker from './common/monthYearPicker';
 import CategoryBudgetCard from './CategoryBudgetCard';
+import GenericChartModal, { GenericChartModalColumn } from './common/MonthTransactionsModal';
 
 function getCurrentMonthKey(d = new Date()) {
     return `${d.getFullYear()}-${('0' + (d.getMonth() + 1)).slice(-2)}`;
@@ -92,6 +93,13 @@ export const CategoryBudget: React.FC = () => {
 
     const currentSums = sumByCategoryForMonth(state.transactions, monthKey);
 
+    // modal state for viewing transactions for a category/month
+    const [modalOpen, setModalOpen] = React.useState(false);
+    const [modalTitle, setModalTitle] = React.useState('');
+    const [modalData, setModalData] = React.useState<CsvTransactionDetail[]>([]);
+    const [modalColumns, setModalColumns] = React.useState<GenericChartModalColumn<CsvTransactionDetail>[]>([]);
+    const [modalSortKey, setModalSortKey] = React.useState<keyof CsvTransactionDetail | undefined>('TransactionDate');
+
     const daysInMonth = (y: number, m: number) => new Date(y, m, 0).getDate();
     const [yearStr, monthStr] = monthKey.split('-');
     const currentDate = new Date();
@@ -150,7 +158,25 @@ export const CategoryBudget: React.FC = () => {
                     const over = isCurrent ? (spent > allowedSoFar) : (isPast ? (spent > (b.amount || 0)) : (spent > 0));
                     const pctOfMonth = (b.amount || 0) <= 0 ? 0 : (spent / (b.amount || 1));
 
+                    const onCardClick = () => {
+                        const filtered = state.transactions.filter(t => {
+                            const key = `${t.TransactionDate.getFullYear()}-${('0' + (t.TransactionDate.getMonth() + 1)).slice(-2)}`;
+                            return key === monthKey && (t.Category || 'Uncategorized') === b.category;
+                        });
+                        setModalTitle(`Transactions for ${b.category} — ${monthKey}`);
+                        setModalData(filtered);
+                        setModalColumns([
+                            { key: 'TransactionDate', label: 'Date', render: (v: unknown) => v instanceof Date ? v.toLocaleDateString() : String(v), sortable: true },
+                            { key: 'Category', label: 'Category', sortable: true },
+                            { key: 'Amount', label: 'Amount', render: (_v: unknown, row?: CsvTransactionDetail) => row ? (row.Amount >= 0 ? '+' : '-') + '$' + Math.abs(row.Amount).toLocaleString() : '', sortable: true },
+                            { key: 'Description', label: 'Description', render: (v: unknown) => <span title={String(v)} style={{whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',display:'inline-block',maxWidth:120}}>{String(v)}</span>, sortable: true },
+                        ]);
+                        setModalSortKey('TransactionDate');
+                        setModalOpen(true);
+                    };
+
                     return (
+                        <>
                         <CategoryBudgetCard
                             key={b.category}
                             item={b}
@@ -160,10 +186,21 @@ export const CategoryBudget: React.FC = () => {
                             pctOfMonth={pctOfMonth}
                             over={over}
                             onChangeAmount={(amt) => onChangeBudget(idx, String(amt))}
+                            onClick={onCardClick}
                         />
+                        </>
                     );
                 })}
             </div>
+
+            <GenericChartModal
+                open={modalOpen}
+                title={modalTitle}
+                data={modalData}
+                columns={modalColumns}
+                onClose={() => setModalOpen(false)}
+                initialSortKey={modalSortKey}
+            />
         </div>
     );
 };
