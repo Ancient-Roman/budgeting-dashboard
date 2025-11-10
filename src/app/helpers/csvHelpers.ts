@@ -1,9 +1,15 @@
 import Papa from "papaparse";
 import { ColumnType, CsvTransactionDetail, OutputColumnType, ParsedCsvTransaction } from "../types/csvParse";
+import normalizeCsvHeader from './headerNormalizer';
 
 export const convertCsvToDetail = (parsed: ParsedCsvTransaction): CsvTransactionDetail => ({
     ...parsed,
-    Amount: Number(parsed.Amount),
+    // Normalize amount: remove $ and commas so Number() parses correctly
+    Amount: (() => {
+        const raw = parsed.Amount ?? '';
+        const cleaned = String(raw).replace(/[$,]/g, '').trim();
+        return cleaned === '' ? 0 : Number(cleaned);
+    })(),
     PostDate: parsed.PostDate ? new Date(parsed.PostDate) : undefined,
     TransactionDate: new Date(parsed.TransactionDate),
     Category: parsed.Category ?? "Unknown",
@@ -150,7 +156,7 @@ export function parseCsvWithOptionalHeaders(
         header: true,
         skipEmptyLines: true,
         transformHeader: function(header) {
-            return header.replace(/\s+/g, ''); // Remove white space in header names
+            return normalizeCsvHeader(header);
         },
     });
 }
