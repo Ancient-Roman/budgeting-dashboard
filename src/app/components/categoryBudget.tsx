@@ -176,7 +176,6 @@ export const CategoryBudget: React.FC = () => {
                     };
 
                     return (
-                        <>
                         <CategoryBudgetCard
                             key={b.category}
                             item={b}
@@ -188,7 +187,6 @@ export const CategoryBudget: React.FC = () => {
                             onChangeAmount={(amt) => onChangeBudget(idx, String(amt))}
                             onClick={onCardClick}
                         />
-                        </>
                     );
                 })}
             </div>
