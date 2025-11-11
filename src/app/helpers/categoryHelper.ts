@@ -19,15 +19,17 @@ export type Category = typeof CATEGORY_LIST[number];
 
 interface Transaction {
   Description: string;
-  Amount: string;
+  // Amount may be a string (from parsed CSV) or a number (after normalization)
+  Amount: string | number;
 }
 
 
 export function categorizeTransaction(transaction: Transaction): Category {
   const desc = transaction.Description.toLowerCase();
-  const amount = transaction.Amount;
+  const rawAmount = transaction.Amount;
+  const amount = typeof rawAmount === 'number' ? rawAmount : Number(rawAmount);
 
-  if (Number(amount) > 0) {
+  if (amount > 0) {
     return "Income";
   }
 

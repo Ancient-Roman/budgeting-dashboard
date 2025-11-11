@@ -4,6 +4,8 @@ import React from 'react';
 import { useTransactions } from '../context/transactionsContext';
 import { parseCsvWithOptionalHeaders } from '../helpers/csvHelpers';
 import { categorizeTransaction } from '../helpers/categoryHelper';
+import { convertCsvToDetail } from '../helpers/csvHelpers';
+import { ParsedCsvTransaction } from '../types/csvParse';
 import { DateRange } from '../types/date';
 
 const CSVUpload = () => {
@@ -53,9 +55,10 @@ const CSVUpload = () => {
         if (result.errors.length) throw new Error(result.errors.join(" | "));
         
         const resultsWithId = result.data.map((d, idx) => ({ ...d, Id: idx }));
+        // Use convertCsvToDetail to normalize Amount (and dates) so categorization uses numeric amount
         const resultsWithCategory = resultsWithId.map((transaction => ({
           ...transaction,
-          Category: transaction.Category ? transaction.Category : categorizeTransaction(transaction)
+          Category: transaction.Category ? transaction.Category : categorizeTransaction(convertCsvToDetail(transaction as ParsedCsvTransaction))
         })));
         
         dispatch({

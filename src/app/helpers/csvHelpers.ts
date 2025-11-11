@@ -4,11 +4,19 @@ import normalizeCsvHeader from './headerNormalizer';
 
 export const convertCsvToDetail = (parsed: ParsedCsvTransaction): CsvTransactionDetail => ({
     ...parsed,
-    // Normalize amount: remove $ and commas so Number() parses correctly
+    // Normalize amount: remove $ and commas so Number() parses correctly and adjust sign per Type
     Amount: (() => {
         const raw = parsed.Amount ?? '';
         const cleaned = String(raw).replace(/[$,]/g, '').trim();
-        return cleaned === '' ? 0 : Number(cleaned);
+        const base = cleaned === '' ? 0 : Number(cleaned);
+        const t = (parsed.Type || '').toString().trim().toLowerCase();
+
+        // Sale or Debit => negative expense
+        // Payment or Credit => positive
+        if (t === 'sale' || t === 'debit') return -Math.abs(base);
+        if (t === 'payment' || t === 'credit') return Math.abs(base);
+
+        return base;
     })(),
     PostDate: parsed.PostDate ? new Date(parsed.PostDate) : undefined,
     TransactionDate: new Date(parsed.TransactionDate),

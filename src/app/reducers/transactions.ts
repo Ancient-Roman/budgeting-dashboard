@@ -35,7 +35,12 @@ export function reducer(state: TransactionsState, action: Action): TransactionsS
   switch (action.type) {
     case "addTransactions":
         const transactionStrings = [...state.transactionStrings, ...action.payload];
-        const transactions = transactionStrings.map(t => convertCsvToDetail(t)).filter(t => t.Type !== "Payment");
+        const transactions = transactionStrings.map(t => convertCsvToDetail(t))
+            .filter(t => t.Type !== "Payment")
+            .filter(record => {
+                const desc = (record.Description ?? "").toString();
+                return !/\btransfer\b/i.test(desc);
+            });
 
         return {
             ...state,
