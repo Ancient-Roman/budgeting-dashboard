@@ -1,7 +1,6 @@
 {
-  "version": 3,
-  "builds": [
-    { "src": "next.config.ts", "use": "@vercel/next" }
-  ],
-  "routes": []
+    "version": 2,
+    "builds": [
+        { "src": "package.json", "use": "@vercel/next" }
+    ]
 }
